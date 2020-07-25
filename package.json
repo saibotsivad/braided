@@ -1,0 +1,67 @@
+{
+  "name": "@saibotsivad/braidedjs",
+  "version": "0.0.0",
+  "description": " Enterprise-ready, cost effective, highly flexible API using AWS and Cloudflare.",
+  "scripts": {
+    "dev": "run-p dev:* dev:service:*",
+    "dev:rollup": "rollup -c -w",
+    "dev:service:api-rest": "cd service/api-rest && wrangler preview --watch",
+    "dev:service:api-ws": "echo api-ws",
+    "dev:service:stream-ws": "echo stream-ws",
+    "dev:service:www-redirect": "echo www-redirect",
+    "test": "node -r esm app/node_modules/api-rest/handle-request.test.js",
+    "kv:accounts": "source secrets.sh && wrangler kv:namespace create \"BRAIDEDJS_ACCOUNTS\"",
+    "kv:configs": "source secrets.sh && wrangler kv:namespace create \"BRAIDEDJS_CONFIGS\"",
+    "build": "rollup -c",
+    "predeploy": "npm run build && node -r esm build-wrangler-toml.js",
+    "deploy": "run-s deploy:*",
+    "deploy:api-rest": "source secrets.sh && cd service/api-rest && wrangler publish",
+    "deploy:api-ws": "source secrets.sh && cd service/api-ws && serverless deploy",
+    "deploy:aws-dynamodb": "source secrets.sh && cd service/aws-dynamodb && serverless deploy",
+    "deploy:stream-ws": "source secrets.sh && cd service/stream-ws && serverless deploy",
+    "deploy:www-redirect": "source secrets.sh && cd service/www-redirect && wrangler publish",
+    "deploy:www-root": "source secrets.sh && cd service/www-root && wrangler publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saibotsivad/braidedjs.git"
+  },
+  "keywords": [
+    "jsonapi",
+    "cloudflare",
+    "aws",
+    "dynamodb",
+    "websockets"
+  ],
+  "author": "saibotsivad",
+  "bugs": {
+    "url": "https://github.com/saibotsivad/braidedjs/issues"
+  },
+  "homepage": "https://braidedjs.com",
+  "devDependencies": {
+    "@cloudflare/wrangler": "^1.9.0",
+    "@rollup/plugin-commonjs": "^11.1.0",
+    "@rollup/plugin-node-resolve": "^7.0.0",
+    "aws-sdk": "^2.616.0",
+    "esm": "^3.2.25",
+    "npm-run-all": "^4.1.5",
+    "rollup": "^2.8.2",
+    "rollup-plugin-md": "0.0.7",
+    "sade": "^1.7.0",
+    "serverless": "^1.70.1",
+    "serverless-cloudflare-workers": "^1.2.0",
+    "sign-aws-requests": "^1.0.1",
+    "zora": "^3.1.8"
+  },
+  "dependencies": {
+    "glob": "^7.1.6",
+    "got": "^10.5.5",
+    "just-split": "^2.1.0",
+    "mustache": "^4.0.1",
+    "p-queue": "^6.3.0",
+    "rollup-plugin-string": "^3.0.0",
+    "shortid": "^2.2.15",
+    "snarkdown": "^1.2.2",
+    "trouter": "^3.1.0"
+  }
+}

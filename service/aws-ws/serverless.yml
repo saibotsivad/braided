@@ -1,0 +1,79 @@
+# Documentation for the serverless configuration of WebSockets
+# is available here:
+# https://www.serverless.com/framework/docs/providers/aws/events/websocket/
+#
+# https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html
+
+service:
+  name: braidedjs-api-ws
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  deploymentBucket:
+    name: braidedjs
+  websocketsApiName: braidedjs-api-ws
+  # This is the property used to route inbound WS messages (written
+  # in JSON) to different Lambda functions. For example, if the body
+  # looked like this:
+  #
+  #     {
+  #         "req": "subscribe",
+  #         ...other properties
+  #     }
+  #
+  # Then you could define a function like this, which would handle
+  # only those incoming messages:
+  #
+  #     myFunction:
+  #       handler: filename.handler
+  #       events:
+  #         - websocket:
+  #             route: subscribe
+  #
+  #websocketsApiRouteSelectionExpression: $request.body.req
+
+  # If you have lots of WS traffic, and you don't find value in the
+  # logs, you should probably disable this, at least in production.
+  logs:
+    websocket: true
+  # Based on the DynamoDB configuration from elsewhere.
+  # TODO add more notes?
+  environment:
+    TABLE_NAME: braidedjs-TODO-${opt:stage, 'dev'}
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 'dynamodb:BatchWriteItem'
+        - 'dynamodb:DeleteItem'
+        - 'dynamodb:PutItem'
+        - 'dynamodb:Query'
+      Resource: arn:aws:dynamodb:*:*:table/braidedjs-TODO-${opt:stage, 'dev'}
+    - Effect: 'Allow'
+      Action:
+        - 'dynamodb:Query'
+      Resource: arn:aws:dynamodb:*:*:table/braidedjs-TODO-${opt:stage, 'dev'}/index/gid-lookup
+
+functions:
+  connect:
+    handler: connect.handler
+    events:
+      - websocket:
+          route: $connect
+          authorizer:
+            name: auth # name of the authentication function, defined below
+            identitySource:
+              - 'route.request.querystring.token'
+  disconnect:
+    handler: disconnect.handler
+    events:
+      - websocket:
+          route: $disconnect
+  pubsub:
+    handler: pubsub.handler
+    events:
+      - websocket:
+          route: $default
+          routeResponseSelectionExpression: $default
+  auth:
+    handler: auth.handler

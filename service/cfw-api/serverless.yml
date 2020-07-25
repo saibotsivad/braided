@@ -1,0 +1,26 @@
+service:
+  name: braidedjs-api-rest
+
+provider:
+  name: cloudflare
+  config:
+    accountId: ${env:CLOUDFLARE_ACCOUNT_ID}
+    zoneId: ${env:CLOUDFLARE_ZONE_ID}
+
+plugins:
+  - serverless-cloudflare-workers
+
+functions:
+  api:
+    name: braidedjs-api-rest
+    script: index
+    resources:
+      kv:
+        - variable: CREDENTIALS
+          namespace: BRAIDEDJS_REST_API_CREDENTIALS
+        - variable: ACCOUNTS
+          namespace: BRAIDEDJS_REST_API_SCHOOLS
+    events:
+      - http:
+          url: api.braidedjs.com/*
+          method: GET

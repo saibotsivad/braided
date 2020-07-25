@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "name": "braidedjs-stream-ws",
+  "version": "0.0.0",
+  "main": "index.js"
+}
